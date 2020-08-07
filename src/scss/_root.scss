@@ -1,0 +1,39 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Compagnie';
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+  color: $c-white;
+  text-transform: uppercase;
+  background: none;
+  text-decoration: none;
+  border: none;
+  cursor: none;
+}
+
+:root {
+  --mouse-x: 0px;
+  --mouse-y: 0px;
+  --scroll-y: 0px;
+  --cursor-size: 1rem;
+}
+
+body {
+  background-color: $c-black;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+h1 {
+  font-family: 'Compagnie';
+  text-transform: uppercase;
+  font-style: italic;
+  font-size: 8rem;
+  white-space: nowrap;
+}
+
+.fixed {
+  position: fixed;
+}
