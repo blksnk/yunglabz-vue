@@ -4,21 +4,14 @@
 
 <script>
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import {
-  Group,
-  Clone,
   Mesh,
   position,
-  // scale,
-  translate,
-  rotate,
   degreeToRadian,
-  loadModel,
+  setUpMeshes,
+  rotate,
 } from '@/helpers/three';
 import { animationLoop, ease } from '@/helpers/animation';
-
-const loader = new GLTFLoader();
 
 export default {
   name: 'GL',
@@ -93,7 +86,11 @@ export default {
         0.01,
         50,
       );
-      this.camera.position.set(0, 1.65, 5);
+      this.setUpCamera();
+    },
+    setUpCamera() {
+      rotate(this.camera, [-10, 10, 0]);
+      position(this.camera, [2, 2, 6]);
     },
     resizeRenderer() {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -131,44 +128,20 @@ export default {
       );
     },
     async initMeshes() {
-      const [box0] = await Promise.all([
-        loadModel(loader, 'models/retro_tv/scene.gltf'),
-        // loadModel(loader, '/models/crt_monitor/scene.gltf'),
-      ]);
-
-      const box1 = Clone(box0);
-      const box2 = Clone(box0);
-      const box3 = Clone(box0);
-      const box4 = Clone(box0);
-
-      position(box0, [1, 1.65, 0]);
-
-      position(box1, [-1, 1.65, 0]);
-
-      position(box2, [2, 0, 0]);
-      translate(box2, [0.25, 0, 0.3]);
-      // scale(box2, [1.3, 1.3, 1.3]);
-      rotate(box2, [0, -20, 0]);
-
-      position(box3, [0, 0, 0]);
-
-      position(box4, [-2, 0, 0]);
-
-      this.meshes = Group([box0, box1, box2, box3, box4]);
+      this.meshes = await setUpMeshes();
       this.scene.add(this.meshes);
       return this.meshes;
     },
     initLight() {
       this.light = new THREE.SpotLight(
-        0x6529ff,
-        1.8,
+        0xe9e9e9,
+        1.9,
         0,
-        degreeToRadian(12),
-        0.4,
+        degreeToRadian(13),
+        0.5,
         2,
       );
       this.light.castShadow = true;
-
       position(this.light, [0, 5, 5]);
 
       this.scene.add(this.light);
@@ -184,14 +157,12 @@ export default {
       this.initLight();
 
       this.animate();
-      this.animateLightTarget([1, 1.65], [0, 0]);
       this.$store.commit('setGlLoaded', true);
     },
     animate() {
       requestAnimationFrame(this.animate);
 
       this.lightLookAt();
-      this.cameraLookAt();
 
       this.renderer.render(this.scene, this.camera);
     },
@@ -205,7 +176,7 @@ export default {
           this.lightTargetPos.x = oldX + diffX * delta;
           this.lightTargetPos.y = oldY + diffY * delta;
         },
-        ease.inOutParametric,
+        ease.inOutQuad,
       );
     },
     tvLightUp(obj, enable) {
@@ -224,14 +195,6 @@ export default {
         this.lightTargetPos.y + this.lightTargetOffset.y,
         this.lightTargetPos.z + this.lightTargetOffset.z,
       );
-    },
-    lightMove() {
-      const { x, y, z } = this.lightPos;
-      position(this.light, [x, y, z]);
-    },
-    cameraLookAt() {
-      const { x, y, z } = this.meshes.position;
-      this.camera.lookAt(new THREE.Vector3(x, y + 1, z));
     },
   },
   mounted() {

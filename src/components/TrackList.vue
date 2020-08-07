@@ -53,7 +53,7 @@ export default {
 #list {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: repeat(5, 10rem);
+  grid-template-rows: repeat(5, 1fr);
   grid-auto-flow: rows dense;
   width: 100%;
 
@@ -63,6 +63,7 @@ export default {
     align-self: start;
 
     z-index: 2;
+    height: 100%;
     max-width: 100%;
 
     h1 {
