@@ -18,6 +18,6 @@ export default {
 <style lang="scss">
 #TrackListWrapper {
   width: 100%;
-  padding: 0.5rem 3rem 3rem 1rem;
+  padding: 6.5rem 1rem 3rem 1rem;
 }
 </style>

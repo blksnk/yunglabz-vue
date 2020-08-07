@@ -6,7 +6,7 @@
         lerped,
       }"
     />
-    <router-view />
+    <router-view v-if="$store.state.glLoaded" />
     <Navigation />
     <TrackControls />
     <CustomCursor

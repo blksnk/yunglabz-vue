@@ -1,8 +1,7 @@
 <template>
   <ul id="list">
-    <a
+    <button
       v-for="(song, index) in $store.state.songs"
-      :href="song.url"
       :key="index"
       @click.prevent="() => onClick(index)"
       @mouseover="() => onHover(index)"
@@ -12,7 +11,7 @@
       }"
     >
       <h1 :data-content="song.title">{{ song.title }}</h1>
-    </a>
+    </button>
   </ul>
 </template>
 
@@ -43,7 +42,7 @@ export default {
               var(--mouse-y) -
                 (100% * #{$i - 1}) +
                 var(--scroll-y) -
-                0.5rem
+                6.5rem
             )
         );
       }
@@ -71,7 +70,7 @@ export default {
       position: relative;
       -webkit-text-stroke: $c-1 2px;
       transition-duration: 0.2s;
-      transition-property: color;
+      transition-timing-function: $bezier;
       width: 100%;
 
       &::after {
@@ -88,6 +87,7 @@ export default {
     &.active h1 {
       transition-duration: 0.6s !important;
       color: $c-1;
+      transform: skewX(-12deg) translateX(-1rem);
     }
   }
 }

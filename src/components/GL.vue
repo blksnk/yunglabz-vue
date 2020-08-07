@@ -11,6 +11,8 @@ import {
   Mesh,
   position,
   // scale,
+  translate,
+  rotate,
   degreeToRadian,
   loadModel,
 } from '@/helpers/three';
@@ -93,15 +95,17 @@ export default {
       );
       this.camera.position.set(0, 1.65, 5);
     },
+    resizeRenderer() {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+    },
     initRenderer() {
       this.renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true,
       });
-      this.renderer.setSize(
-        this.container.clientWidth,
-        this.container.clientHeight,
-      );
+      this.resizeRenderer();
       this.container.appendChild(this.renderer.domElement);
     },
     initMaterials() {
@@ -141,8 +145,10 @@ export default {
 
       position(box1, [-1, 1.65, 0]);
 
-      // scale(box2, [0.01, 0.01, 0.01]);
       position(box2, [2, 0, 0]);
+      translate(box2, [0.25, 0, 0.3]);
+      // scale(box2, [1.3, 1.3, 1.3]);
+      rotate(box2, [0, -20, 0]);
 
       position(box3, [0, 0, 0]);
 
@@ -154,7 +160,7 @@ export default {
     },
     initLight() {
       this.light = new THREE.SpotLight(
-        0x9a57ff,
+        0x6529ff,
         1.8,
         0,
         degreeToRadian(12),
@@ -170,8 +176,8 @@ export default {
     },
     async initGL() {
       this.scene = new THREE.Scene();
-      this.initRenderer();
       this.initCamera();
+      this.initRenderer();
       this.initMaterials();
 
       await this.initMeshes();
@@ -179,6 +185,7 @@ export default {
 
       this.animate();
       this.animateLightTarget([1, 1.65], [0, 0]);
+      this.$store.commit('setGlLoaded', true);
     },
     animate() {
       requestAnimationFrame(this.animate);
@@ -229,6 +236,7 @@ export default {
   },
   mounted() {
     this.initGL();
+    window.addEventListener('resize', this.resizeRenderer);
   },
 };
 </script>

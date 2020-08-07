@@ -16,20 +16,33 @@ export function V3(x, y, z) {
   return new THREE.Vector3(x, y, z);
 }
 
-export function position(el, [x, y, z]) {
-  el.position.set(x, y, z);
-}
-
-export function scale(obj, [x, y, z]) {
-  obj.scale.set(x, y, z);
-}
-
 export function radToDeg(rad) {
   return (rad * 180) / Math.PI;
 }
 
 export function degreeToRadian(deg) {
   return (deg * Math.PI) / 180;
+}
+
+export function rotate(obj, coords) {
+  const [x, y, z] = coords.map((angle) => degreeToRadian(angle));
+  obj.rotateX(x);
+  obj.rotateY(y);
+  obj.rotateZ(z);
+}
+
+export function position(obj, [x, y, z]) {
+  obj.position.set(x, y, z);
+}
+
+export function scale(obj, [x, y, z]) {
+  obj.scale.set(x, y, z);
+}
+
+export function translate(obj, [x, y, z]) {
+  obj.translateX(x);
+  obj.translateY(y);
+  obj.translateZ(z);
 }
 
 export function foo() {
