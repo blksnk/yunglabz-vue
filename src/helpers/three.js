@@ -66,7 +66,7 @@ export function getNested(obj, levels) {
 export async function loadModel(loader, url) {
   return new Promise((resolve, reject) => {
     loader.load(
-      url,
+      process.env.BASE_URL + url,
       ({ scene }) => {
         resolve(scene);
       },

@@ -132,7 +132,7 @@ export default {
     },
     async initMeshes() {
       const [box0] = await Promise.all([
-        loadModel(loader, '/models/retro_tv/scene.gltf'),
+        loadModel(loader, 'models/retro_tv/scene.gltf'),
         // loadModel(loader, '/models/crt_monitor/scene.gltf'),
       ]);
 
