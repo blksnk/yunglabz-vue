@@ -90,7 +90,7 @@ export default {
     },
     setUpCamera() {
       rotate(this.camera, [-10, 10, 0]);
-      position(this.camera, [2, 2, 6]);
+      position(this.camera, [2, 2.5, 6]);
     },
     resizeRenderer() {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -137,7 +137,7 @@ export default {
         0xe9e9e9,
         1.9,
         0,
-        degreeToRadian(13),
+        degreeToRadian(14),
         0.5,
         2,
       );

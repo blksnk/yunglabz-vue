@@ -83,10 +83,10 @@ export async function loadModel(loader, url) {
 export async function loadUsedModels() {
   const loader = new GLTFLoader();
   const loaded = await Promise.all([
-    loadModel(loader, 'models/retro_tv/scene.gltf'),
-    loadModel(loader, 'models/crt_green/scene.gltf'),
-    loadModel(loader, 'models/mac_classic/scene.gltf'),
-    loadModel(loader, 'models/pbr_retro_tv/scene.gltf'),
+    loadModel(loader, 'models/retro_tv_reduced/scene.gltf'),
+    loadModel(loader, 'models/crt_green_reduced/scene.gltf'),
+    loadModel(loader, 'models/mac_classic_reduced/scene.gltf'),
+    loadModel(loader, 'models/big_tv_reduced/scene.gltf'),
   ]);
 
   return loaded;
@@ -133,8 +133,8 @@ export async function setUpMeshes() {
   // [__] [__] [_]
   //    []
   position(mac, [1.1, 1.85, 0.5]);
+  scale(mac, [1.5, 1.5, 1.5]);
   rotate(mac, [0, -7, 0]);
-  scale(mac, [0.0015, 0.0015, 0.0015]);
 
   const group = Group([retroTv, tvBig, box2, crtGreen, mac]);
   rotate(group, [0, 15, 0]);
