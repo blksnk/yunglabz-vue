@@ -60,14 +60,13 @@ export default {
     },
     spotLightTargetOffset() {
       // offset light target with mouse position
-      // adjust for mesh rotation
-      const x = (this.lerped.x / this.viewport.width) * 2 - 0.5;
-      const y =
-        -((this.lerped.y / this.viewport.height) * 2 - 1) + 0.2;
+
+      const x = (this.lerped.x / this.viewport.width) * 2 - 1;
+      // const y = -((this.lerped.y / this.viewport.height) * 2 - 1);
       return {
         x,
-        y,
-        z: 0.5,
+        y: 0,
+        z: 0,
       };
     },
   },
@@ -184,6 +183,7 @@ export default {
       );
       this.spotLight.castShadow = true;
       position(this.spotLight, [4, 4, 8]);
+      rotate(this.spotLight.target, [0, 15, 0]);
 
       this.scene.add(this.spotLight);
       this.scene.add(this.spotLight.target);
@@ -232,7 +232,7 @@ export default {
         // eslint-disable-next-line implicit-arrow-linebreak
         enable ? val * delta : val * (1 - delta);
       animationLoop({
-        duration: enable ? 300 : 100,
+        duration: enable ? 300 : 50,
         applyFn: ({ delta }) => {
           light.intensity = rampVal(delta, 5);
           mat.emissiveIntensity = rampVal(delta, 1);

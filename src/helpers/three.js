@@ -102,7 +102,7 @@ export async function loadUsedModels() {
     loadModel(loader, 'models/crt_green/scene.gltf'),
     loadModel(loader, 'models/retro_tv_rotated/scene.gltf'),
     loadModel(loader, 'models/mac_classic_reduced/scene.gltf'),
-    loadModel(loader, 'models/big_tv_reduced/scene.gltf'),
+    loadModel(loader, 'models/big_tv/scene.gltf'),
   ]);
 
   return loaded;
