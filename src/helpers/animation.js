@@ -1,4 +1,9 @@
-export function animationLoop(duration, callback, easeFunc) {
+export function animationLoop({
+  duration,
+  applyFn,
+  easeFn,
+  onComplete,
+}) {
   let start = null;
 
   function loop(timestamp) {
@@ -9,14 +14,16 @@ export function animationLoop(duration, callback, easeFunc) {
       timestamp - start >= duration ? duration : timestamp - start;
     const delta = progress / duration;
 
-    callback({
+    applyFn({
       progress,
       duration,
-      delta: easeFunc ? easeFunc(delta) : delta,
+      delta: easeFn ? easeFn(delta) : delta,
     });
 
     if (progress < duration) {
       requestAnimationFrame(loop);
+    } else if (onComplete) {
+      onComplete();
     }
   }
   requestAnimationFrame(loop);

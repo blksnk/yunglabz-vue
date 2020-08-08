@@ -59,6 +59,10 @@ export function Clone(obj) {
   return obj.clone();
 }
 
+export function isDupe(arr, prop, val) {
+  return arr.some((child) => child[prop] === val);
+}
+
 export function recursiveObjSearch(object, key) {
   let value;
   object.children.some((child) => {
@@ -94,13 +98,68 @@ export async function loadModel(loader, url) {
 export async function loadUsedModels() {
   const loader = new GLTFLoader();
   const loaded = await Promise.all([
-    loadModel(loader, 'models/retro_tv_reduced/scene.gltf'),
-    loadModel(loader, 'models/crt_green_reduced/scene.gltf'),
+    loadModel(loader, 'models/retro_tv/scene.gltf'),
+    loadModel(loader, 'models/crt_green/scene.gltf'),
+    loadModel(loader, 'models/retro_tv_rotated/scene.gltf'),
     loadModel(loader, 'models/mac_classic_reduced/scene.gltf'),
     loadModel(loader, 'models/big_tv_reduced/scene.gltf'),
   ]);
 
   return loaded;
+}
+
+export async function setupMeshes() {
+  const [
+    retroTv,
+    crtGreen,
+    retroTvRotated,
+    mac,
+    tvBig,
+  ] = await loadUsedModels();
+
+  // [__]   [_]
+  // [__] [xx] [_]
+  //    [_]
+  position(retroTv, [0, 0.05, 0]);
+  scale(retroTv, [1.1, 1.15, 1.1]);
+
+  // [__]   [_]
+  // [xx] [__] [_]
+  //    [_]
+  position(tvBig, [-2.7, 0.3, 0.3]);
+  scale(tvBig, [1.6, 1.6, 1.6]);
+  rotate(tvBig, [0, 105, 0]);
+
+  // [__]   [_]
+  // [__] [__] [x]
+  //    []
+  position(retroTvRotated, [2, 0, 0]);
+  rotate(retroTvRotated, [0, 0, 90]);
+
+  // [xx]   [_]
+  // [__] [__] [_]
+  //    []
+  position(crtGreen, [-2, 1.94, 0.1]);
+  rotate(crtGreen, [0, 20, 0]);
+  translate(crtGreen.children[0], [-1, 0, 0]);
+
+  // [__]   [x]
+  // [__] [__] [_]
+  //    []
+  position(mac, [1.1, 1.85, 0.5]);
+  scale(mac, [1.5, 1.5, 1.5]);
+  rotate(mac, [0, -7, 0]);
+
+  const meshes = Group([
+    retroTv,
+    tvBig,
+    retroTvRotated,
+    crtGreen,
+    mac,
+  ]);
+  rotate(meshes, [0, 15, 0]);
+
+  return meshes;
 }
 
 export function setupRectLights(color = 0xe2f8c1, intensity = 5) {
@@ -133,9 +192,14 @@ export function setupRectLights(color = 0xe2f8c1, intensity = 5) {
   position(light2, [2, 0, 0.7]);
   rotate(light2, [0, 180, 0]);
 
-  const light3 = new THREE.RectAreaLight(color, intensity, 1, 0.8);
-  position(light3, [-2.6, 2.1, 1]);
-  rotate(light3, [-10, 200, 0]);
+  const light3 = new THREE.RectAreaLight(
+    color,
+    intensity + 3,
+    1,
+    0.8,
+  );
+  position(light3, [-2.6, 2.1, 1.05]);
+  rotate(light3, [-9, 200, 0]);
 
   const light4 = new THREE.RectAreaLight(
     color,
@@ -150,47 +214,4 @@ export function setupRectLights(color = 0xe2f8c1, intensity = 5) {
   rotate(lights, [0, 15, 0]);
 
   return lights;
-}
-
-export async function setupMeshes() {
-  const [retroTv, crtGreen, mac, tvBig] = await loadUsedModels();
-  const box2 = Clone(retroTv);
-
-  // [__]   [_]
-  // [__] [xx] [_]
-  //    [_]
-  position(retroTv, [0, 0.05, 0]);
-  scale(retroTv, [1.1, 1.15, 1.1]);
-
-  // [__]   [_]
-  // [xx] [__] [_]
-  //    [_]
-  position(tvBig, [-2.7, 0.3, 0.3]);
-  scale(tvBig, [1.6, 1.6, 1.6]);
-  rotate(tvBig, [0, 105, 0]);
-
-  // [__]   [_]
-  // [__] [__] [x]
-  //    []
-  position(box2, [2, 0, 0]);
-  rotate(box2, [0, 0, 90]);
-
-  // [xx]   [_]
-  // [__] [__] [_]
-  //    []
-  position(crtGreen, [-2, 1.94, 0.1]);
-  rotate(crtGreen, [0, 20, 0]);
-  translate(crtGreen.children[0], [-1, 0, 0]);
-
-  // [__]   [x]
-  // [__] [__] [_]
-  //    []
-  position(mac, [1.1, 1.85, 0.5]);
-  scale(mac, [1.5, 1.5, 1.5]);
-  rotate(mac, [0, -7, 0]);
-
-  const meshes = Group([retroTv, tvBig, box2, crtGreen, mac]);
-  rotate(meshes, [0, 15, 0]);
-
-  return meshes;
 }

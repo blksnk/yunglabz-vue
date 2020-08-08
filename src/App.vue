@@ -6,7 +6,7 @@
         lerped,
       }"
     />
-    <router-view v-if="$store.state.glLoaded" />
+    <router-view />
     <Navigation />
     <TrackControls />
     <CustomCursor
@@ -35,6 +35,7 @@ export default {
   },
   data() {
     return {
+      frameId: null,
       scroll: {
         x: 0,
         y: 0,
@@ -75,7 +76,7 @@ export default {
       setCssVar('mouse-x', `${this.lerped.x}px`);
       setCssVar('mouse-y', `${this.lerped.y}px`);
 
-      requestAnimationFrame(this.updateLerp);
+      this.frameId = requestAnimationFrame(this.updateLerp);
     },
     updateScrollPos() {
       this.scroll.x = window.scrollX;
@@ -86,7 +87,12 @@ export default {
   mounted() {
     document.addEventListener('wheel', this.updateScrollPos);
     document.addEventListener('mousemove', this.updateMousePos);
-    requestAnimationFrame(this.updateLerp);
+    this.frameId = requestAnimationFrame(this.updateLerp);
+  },
+  beforeDestroy() {
+    cancelAnimationFrame(this.frameId);
+    document.removeEventListener('wheel', this.updateScrollPos);
+    document.removeEventListener('mousemove', this.updateMousePos);
   },
 };
 </script>

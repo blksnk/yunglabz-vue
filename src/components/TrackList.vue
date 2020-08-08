@@ -20,10 +20,14 @@ export default {
   name: 'TrackList',
   methods: {
     onClick(index) {
-      this.$store.commit('setActiveTrackIndex', index);
+      if (this.$store.state.glLoaded) {
+        this.$store.commit('setActiveTrackIndex', index);
+      }
     },
     onHover(index) {
-      this.$store.commit('setHoverTrackIndex', index);
+      if (this.$store.state.glLoaded) {
+        this.$store.commit('setHoverTrackIndex', index);
+      }
     },
   },
 };
@@ -35,7 +39,7 @@ export default {
     &:nth-child(#{$i}) {
       h1::after {
         clip-path: circle(
-          8rem
+          6rem
             at
             calc(var(--mouse-x) - 1rem)
             calc(
