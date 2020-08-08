@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib';
 
 export function Group(els) {
   const g = new THREE.Group();
@@ -13,7 +14,7 @@ export function Mesh(geo, mat) {
   return new THREE.Mesh(geo, mat);
 }
 
-export function V3(x, y, z) {
+export function V3({ x, y, z }) {
   return new THREE.Vector3(x, y, z);
 }
 
@@ -46,6 +47,10 @@ export function translate(obj, [x, y, z]) {
   obj.translateZ(z);
 }
 
+export function setProp(obj, prop, val) {
+  obj[prop].set(val);
+}
+
 export function foo() {
   return 'bar';
 }
@@ -54,14 +59,20 @@ export function Clone(obj) {
   return obj.clone();
 }
 
-export function getNested(obj, levels) {
-  let child = obj;
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i <= levels; i++) {
-    // eslint-disable-next-line prefer-destructuring
-    child = child.children[0];
-  }
-  return child;
+export function recursiveObjSearch(object, key) {
+  let value;
+  object.children.some((child) => {
+    let ret;
+    if (child[key]) {
+      value = child[key];
+      ret = true;
+    } else if (object.children.length > 0) {
+      value = recursiveObjSearch(child, key);
+      ret = value !== undefined;
+    }
+    return ret;
+  });
+  return value;
 }
 
 export async function loadModel(loader, url) {
@@ -92,9 +103,57 @@ export async function loadUsedModels() {
   return loaded;
 }
 
-export async function setUpMeshes() {
-  const [retroTv, crtGreen, mac, tvBig] = await loadUsedModels();
+export function setupRectLights(color = 0xe2f8c1, intensity = 5) {
+  RectAreaLightUniformsLib.init();
 
+  const light0 = new THREE.RectAreaLight(
+    color,
+    intensity,
+    1.7,
+    1.4,
+  );
+  position(light0, [0, 0.15, 0.75]);
+  rotate(light0, [0, 180, 0]);
+
+  const light1 = new THREE.RectAreaLight(
+    color,
+    intensity,
+    2.1,
+    1.7,
+  );
+  position(light1, [-2.8, 0.3, 0.8]);
+  rotate(light1, [0, 195, 0]);
+
+  const light2 = new THREE.RectAreaLight(
+    color,
+    intensity,
+    1.4,
+    1.7,
+  );
+  position(light2, [2, 0, 0.7]);
+  rotate(light2, [0, 180, 0]);
+
+  const light3 = new THREE.RectAreaLight(color, intensity, 1, 0.8);
+  position(light3, [-2.6, 2.1, 1]);
+  rotate(light3, [-10, 200, 0]);
+
+  const light4 = new THREE.RectAreaLight(
+    color,
+    intensity,
+    0.95,
+    0.8,
+  );
+  position(light4, [1.1, 2.05, 0.9]);
+  rotate(light4, [-9, 173, 0]);
+
+  const lights = Group([light0, light1, light2, light3, light4]);
+  rotate(lights, [0, 15, 0]);
+
+  return lights;
+}
+
+export async function setupMeshes() {
+  const [retroTv, crtGreen, mac, tvBig] = await loadUsedModels();
   const box2 = Clone(retroTv);
 
   // [__]   [_]
@@ -130,8 +189,8 @@ export async function setUpMeshes() {
   scale(mac, [1.5, 1.5, 1.5]);
   rotate(mac, [0, -7, 0]);
 
-  const group = Group([retroTv, tvBig, box2, crtGreen, mac]);
-  rotate(group, [0, 15, 0]);
+  const meshes = Group([retroTv, tvBig, box2, crtGreen, mac]);
+  rotate(meshes, [0, 15, 0]);
 
-  return group;
+  return meshes;
 }

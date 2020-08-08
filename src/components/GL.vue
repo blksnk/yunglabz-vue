@@ -5,11 +5,13 @@
 <script>
 import * as THREE from 'three';
 import {
-  Mesh,
   position,
   degreeToRadian,
-  setUpMeshes,
+  setupMeshes,
+  setupRectLights,
   rotate,
+  // V3,
+  recursiveObjSearch,
 } from '@/helpers/three';
 import { animationLoop, ease } from '@/helpers/animation';
 
@@ -31,9 +33,9 @@ export default {
       renderer: null,
       meshes: null,
       materials: [],
-      light: null,
-      model: null,
-      lightTargetPos: {
+      screenLights: [],
+      spotLight: null,
+      spotLightTargetPos: {
         x: 0,
         y: 0,
         z: 1,
@@ -47,12 +49,15 @@ export default {
     activeIndex() {
       return this.$store.state.activeTrackIndex;
     },
-    lightTargetOffset() {
-      const x = (this.lerped.x / this.viewport.width) * 2 - 1;
-      const y = -((this.lerped.y / this.viewport.height) * 2 - 1);
+    spotLightTargetOffset() {
+      // offset light target with mouse position
+      // adjust for mesh rotation
+      const x = (this.lerped.x / this.viewport.width) * 2 - 0.5;
+      const y =
+        -((this.lerped.y / this.viewport.height) * 2 - 1) + 0.2;
       return {
         x,
-        y: y + 0.5,
+        y,
         z: 0.5,
       };
     },
@@ -71,11 +76,17 @@ export default {
       const oldMesh = this.meshes.children[oldIndex];
       const newMesh = this.meshes.children[newIndex];
 
-      this.animateLightTarget(
-        [newMesh.position.x, newMesh.position.y],
-        [oldMesh.position.x, oldMesh.position.y],
-      );
-      // this.tvLightUp(getNested(newMesh, 1), true);
+      this.tvLightUp(oldIndex, false);
+      setTimeout(() => {
+        this.animateLightTarget(
+          [newMesh.position.x, newMesh.position.y],
+          [oldMesh.position.x, oldMesh.position.y],
+        );
+      }, 300);
+
+      setTimeout(() => {
+        this.tvLightUp(newIndex, true);
+      }, 300);
     },
   },
   methods: {
@@ -105,56 +116,52 @@ export default {
       this.resizeRenderer();
       this.container.appendChild(this.renderer.domElement);
     },
-    initMaterials() {
-      this.materials = [
-        new THREE.MeshLambertMaterial({
-          color: 0x181818,
-          emissive: 0x9a57ff,
-          emissiveIntensity: 2,
-          wireframe: true,
-        }),
-      ];
-    },
-    createPlane() {
-      return new THREE.Mesh(
-        new THREE.PlaneGeometry(4, 3, 3, 3),
-        this.materials[0],
+    extractMaterials() {
+      const { children } = this.meshes;
+      this.materials = children.map(
+        (mesh) =>
+          // eslint-disable-next-line implicit-arrow-linebreak
+          recursiveObjSearch(mesh, 'material'),
+        // eslint-disable-next-line function-paren-newline
       );
-    },
-    createBox() {
-      return Mesh(
-        new THREE.BoxGeometry(3.5, 3, 3, 2, 2, 2),
-        this.materials[1],
-      );
+      console.log(this.materials);
     },
     async initMeshes() {
-      this.meshes = await setUpMeshes();
+      this.meshes = await setupMeshes();
       this.scene.add(this.meshes);
+
       return this.meshes;
     },
-    initLight() {
-      this.light = new THREE.SpotLight(
+    initScreenLights() {
+      this.screenLights = setupRectLights(0xe2f8c1, 0);
+      this.scene.add(this.screenLights);
+      this.tvLightUp(0, true);
+    },
+    initSpotLight() {
+      this.spotLight = new THREE.SpotLight(
         0xe9e9e9,
-        1.7,
+        1.5,
         0,
-        degreeToRadian(10),
+        degreeToRadian(9),
         0.5,
         2,
       );
-      this.light.castShadow = true;
-      position(this.light, [4, 4, 8]);
+      this.spotLight.castShadow = true;
+      position(this.spotLight, [4, 4, 8]);
 
-      this.scene.add(this.light);
-      this.scene.add(this.light.target);
+      this.scene.add(this.spotLight);
+      this.scene.add(this.spotLight.target);
     },
     async initGL() {
       this.scene = new THREE.Scene();
       this.initCamera();
       this.initRenderer();
-      this.initMaterials();
 
       await this.initMeshes();
-      this.initLight();
+      this.extractMaterials();
+      this.initScreenLights();
+
+      this.initSpotLight();
 
       this.animate();
       this.$store.commit('setGlLoaded', true);
@@ -162,7 +169,7 @@ export default {
     animate() {
       requestAnimationFrame(this.animate);
 
-      this.lightLookAt();
+      this.spotLightLookAt();
 
       this.renderer.render(this.scene, this.camera);
     },
@@ -173,27 +180,21 @@ export default {
       animationLoop(
         600,
         ({ delta }) => {
-          this.lightTargetPos.x = oldX + diffX * delta;
-          this.lightTargetPos.y = oldY + diffY * delta;
+          this.spotLightTargetPos.x = oldX + diffX * delta;
+          this.spotLightTargetPos.y = oldY + diffY * delta;
         },
         ease.inOutQuad,
       );
     },
-    tvLightUp(obj, enable) {
-      const tvScreen = obj.children[12];
-      if (enable) {
-        // eslint-disable-next-line prefer-destructuring
-        tvScreen.material = this.materials[0];
-      } else {
-        tvScreen.material = obj.material;
-      }
-      tvScreen.material.needsUpdate = true;
+    tvLightUp(index, enable) {
+      const light = this.screenLights.children[index];
+      light.intensity = enable ? 5 : 0;
     },
-    lightLookAt() {
-      this.light.target.position = new THREE.Vector3(
-        this.lightTargetPos.x + this.lightTargetOffset.x,
-        this.lightTargetPos.y + this.lightTargetOffset.y,
-        this.lightTargetPos.z + this.lightTargetOffset.z,
+    spotLightLookAt() {
+      this.spotLight.target.position = new THREE.Vector3(
+        this.spotLightTargetPos.x + this.spotLightTargetOffset.x,
+        this.spotLightTargetPos.y + this.spotLightTargetOffset.y,
+        this.spotLightTargetPos.z + this.spotLightTargetOffset.z,
       );
     },
   },
