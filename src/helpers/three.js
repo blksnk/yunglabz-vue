@@ -93,13 +93,7 @@ export async function loadUsedModels() {
 }
 
 export async function setUpMeshes() {
-  const [
-    retroTv,
-    crtGreen,
-    mac,
-    tvBig,
-    // dualMonitor,
-  ] = await loadUsedModels();
+  const [retroTv, crtGreen, mac, tvBig] = await loadUsedModels();
 
   const box2 = Clone(retroTv);
 

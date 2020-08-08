@@ -135,14 +135,14 @@ export default {
     initLight() {
       this.light = new THREE.SpotLight(
         0xe9e9e9,
-        1.9,
+        1.7,
         0,
-        degreeToRadian(14),
+        degreeToRadian(10),
         0.5,
         2,
       );
       this.light.castShadow = true;
-      position(this.light, [0, 5, 5]);
+      position(this.light, [4, 4, 8]);
 
       this.scene.add(this.light);
       this.scene.add(this.light.target);
